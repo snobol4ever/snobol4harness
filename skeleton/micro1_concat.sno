@@ -1,0 +1,103 @@
+*----------------------------------------------------------------------
+* micro1_concat.sno — Level 0 skeleton, input 'N + 1' (concat)
+*
+* This is the minimal input that triggers Bug7.
+* X4 = nInc() *Expr17 FENCE(*White *X4 | '')
+* For 'N + 1': X4 fires nInc, matches N via Expr17 arm2,
+* then FENCE tries *White *X4 for the ' + 1' part.
+* Second X4 call: nInc fires, then Expr17 arm1 tries nPush() $'('...
+* $'(' fails → nPop() MUST fire before arm2 takes *Id ~ 'Id' for '+'.
+*
+* Run: snobol4 -f -I<inc_dir> micro1_concat.sno
+*
+* Expected oracle C-level trace (from compiled binary stderr):
+*   SEQ0001 NPUSH depth=0   <- Expr4 outer
+*   SEQ0002 NINC  depth=0   <- X4 first atom N
+*   SEQ0003 NPUSH depth=1   <- Expr17 arm1 (before '(' fails)
+*   SEQ0004 NPOP  depth=1   <- arm1 backtrack
+*   SEQ0005 NINC  depth=0   <- X4 second atom +
+*   SEQ0006 NPUSH depth=1   <- Expr17 arm1 again
+*   SEQ0007 NPOP  depth=1   <- arm1 backtrack again
+*   SEQ0008 NINC  depth=0   <- X4 third atom 1
+*   SEQ0009 NPUSH depth=1   <- Expr17 arm1 again
+*   SEQ0010 NPOP  depth=1   <- arm1 backtrack again
+*   SEQ0011 NPOP  depth=0   <- Expr4 outer
+*   MATCH
+*
+* Bug7 symptom: SEQ0006 shows NPUSH depth=2 (ghost frame from SEQ0003)
+*----------------------------------------------------------------------
+        &TRIM = 1
+        &FULLSCAN = 1
+
+-INCLUDE 'global.sno'
+-INCLUDE 'is.sno'
+-INCLUDE 'FENCE.sno'
+-INCLUDE 'stack.sno'
+-INCLUDE 'ShiftReduce.sno'
+-INCLUDE 'semantic.sno'
+
+        seq    = 0
+
+        DEFINE('tNPush_()', 'tNPushB')          :(tNPushEnd)
+tNPushB seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' NPUSH'
+        tNPush_ = .dummy                        :(NRETURN)
+tNPushEnd
+
+        DEFINE('tNPop_()', 'tNPopB')            :(tNPopEnd)
+tNPopB  seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' NPOP'
+        tNPop_ = .dummy                         :(NRETURN)
+tNPopEnd
+
+        DEFINE('tNInc_()', 'tNIncB')            :(tNIncEnd)
+tNIncB  seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' NINC'
+        tNInc_ = .dummy                         :(NRETURN)
+tNIncEnd
+
+        DEFINE('nPush()', 'nPushB')             :(nPushEnd)
+nPushB  nPush = '' . *tNPush_()                :(RETURN)
+nPushEnd
+
+        DEFINE('nPop()', 'nPopB')               :(nPopEnd)
+nPopB   nPop = '' . *tNPop_()                  :(RETURN)
+nPopEnd
+
+        DEFINE('nInc()', 'nIncB')               :(nIncEnd)
+nIncB   nInc = '' . *tNInc_()                  :(RETURN)
+nIncEnd
+
+        DEFINE('Shift(t,v)', 'tShiftB')         :(tShiftEnd)
+tShiftB seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' SHIFT t=' t ' v=' v
+        Shift = v                               :(NRETURN)
+tShiftEnd
+
+        DEFINE('Reduce(t,n)', 'tReduceB')       :(tReduceEnd)
+tReduceB seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' REDUCE t=' t ' n=' n
+        Reduce = t                              :(NRETURN)
+tReduceEnd
+
+        letter = &UCASE &LCASE '_'
+        digit  = '0123456789'
+        alnum  = letter digit
+        White  = SPAN(' ')
+        Id     = SPAN(alnum)
+
+        Expr17 = FENCE(
++                   nPush() $'(' nPop()
++                |  *Id ~ 'Id'
++                )
+
+        X4     = nInc() *Expr17 FENCE(*White *X4 | '')
+
+        Expr4  = nPush() *X4 ("'..'" & 0) nPop()
+
+        subject = 'N + 1'
+        OUTPUT = '--- input: ' subject
+        subject *Expr4                          :F(FAIL)
+        OUTPUT = 'MATCH'                        :(END)
+FAIL    OUTPUT = 'FAIL'
+END

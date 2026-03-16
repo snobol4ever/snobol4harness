@@ -1,0 +1,97 @@
+*----------------------------------------------------------------------
+* micro0_skeleton.sno — Level 0 skeleton trace
+*
+* Instruments nPush/nInc/nPop/Shift/Reduce with SEQ-numbered trace.
+* Two-arg DEFINE('fn()', 'bodyLabel') used throughout so body entry
+* point is unambiguous (SNOBOL4/SPITBOL compatible).
+* epsilon is uninitialized '' by SNOBOL4 convention.
+*
+* Run: snobol4 -f -I<inc_dir> micro0_skeleton.sno
+*
+* Expected oracle trace for input 'N' (bare identifier):
+*   SEQ0001 NPUSH         <- Expr4 outer nPush
+*   SEQ0002 NINC          <- X4 nInc
+*   SEQ0003 NPUSH         <- Expr17 arm1 nPush fires before $'(' fails
+*   SEQ0004 NPOP          <- arm1 backtrack ** BUG: missing in compiled **
+*   SEQ0005 SHIFT t=Id v=N
+*   SEQ0006 REDUCE t=.. n=0
+*   SEQ0007 NPOP          <- Expr4 outer nPop
+*   MATCH
+*----------------------------------------------------------------------
+        &TRIM = 1
+        &FULLSCAN = 1
+
+-INCLUDE 'global.sno'
+-INCLUDE 'is.sno'
+-INCLUDE 'FENCE.sno'
+-INCLUDE 'stack.sno'
+-INCLUDE 'ShiftReduce.sno'
+-INCLUDE 'semantic.sno'
+
+        seq    = 0
+
+*       Side-effect primitives called during match via '' . *fn()
+        DEFINE('tNPush_()', 'tNPushB')          :(tNPushEnd)
+tNPushB seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' NPUSH'
+        tNPush_ = .dummy                        :(NRETURN)
+tNPushEnd
+
+        DEFINE('tNPop_()', 'tNPopB')            :(tNPopEnd)
+tNPopB  seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' NPOP'
+        tNPop_ = .dummy                         :(NRETURN)
+tNPopEnd
+
+        DEFINE('tNInc_()', 'tNIncB')            :(tNIncEnd)
+tNIncB  seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' NINC'
+        tNInc_ = .dummy                         :(NRETURN)
+tNIncEnd
+
+*       Override nPush/nInc/nPop pattern constructors
+        DEFINE('nPush()', 'nPushB')             :(nPushEnd)
+nPushB  nPush = '' . *tNPush_()                :(RETURN)
+nPushEnd
+
+        DEFINE('nPop()', 'nPopB')               :(nPopEnd)
+nPopB   nPop = '' . *tNPop_()                  :(RETURN)
+nPopEnd
+
+        DEFINE('nInc()', 'nIncB')               :(nIncEnd)
+nIncB   nInc = '' . *tNInc_()                  :(RETURN)
+nIncEnd
+
+*       Override Shift/Reduce (called during match by *Shift(...), *Reduce(...))
+        DEFINE('Shift(t,v)', 'tShiftB')         :(tShiftEnd)
+tShiftB seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' SHIFT t=' t ' v=' v
+        Shift = v                               :(NRETURN)
+tShiftEnd
+
+        DEFINE('Reduce(t,n)', 'tReduceB')       :(tReduceEnd)
+tReduceB seq = seq + 1
+        OUTPUT = 'SEQ' LPAD(seq,4,'0') ' REDUCE t=' t ' n=' n
+        Reduce = t                              :(NRETURN)
+tReduceEnd
+
+*       Patterns — exact beauty.sno syntax, ~ and & opsyn intact
+        letter = &UCASE &LCASE '_'
+        digit  = '0123456789'
+        Id     = SPAN(letter digit)
+
+        Expr17 = FENCE(
++                   nPush() $'(' nPop()
++                |  *Id ~ 'Id'
++                )
+
+        X4     = nInc() *Expr17 FENCE(*SPAN(' ') *X4 | '')
+
+        Expr4  = nPush() *X4 ("'..'" & 0) nPop()
+
+        subject = 'N'
+        OUTPUT = '--- input: ' subject
+        subject *Expr4                          :F(FAIL)
+        OUTPUT = 'MATCH'                        :(END)
+FAIL    OUTPUT = 'FAIL'
+END
