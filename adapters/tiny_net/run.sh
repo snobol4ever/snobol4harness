@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# snobol4harness/adapters/tiny_net/run.sh
+# Run a .sno file through TINY NET (snobol4x -net) engine and emit stdout only.
+#
+# Usage: run.sh <file.sno> [< input]
+# Calling convention: stdin → program stdin, stdout → program output.
+#
+# Pipeline: sno2c -net → ilasm → mono
+#
+# CACHING: ilasm is slow (~350ms). We cache the .exe by md5 of the .il so
+# repeat runs of unchanged programs skip ilasm entirely.
+#
+# Requires: snobol4x built (sno2c binary), ilasm, mono.
+# Env overrides:
+#   TINY_REPO  — path to snobol4x checkout  (default: $HOME/snobol4x)
+#   NET_CACHE  — cache dir for .il/.exe      (default: /tmp/snobol4x_net_cache)
+
+set -uo pipefail
+
+SNO_FILE="${1:-}"
+[ -z "$SNO_FILE" ] && { echo "Usage: run.sh <file.sno>" >&2; exit 2; }
+
+TINY_REPO="${TINY_REPO:-$HOME/snobol4x}"
+SNO2C="$TINY_REPO/sno2c"
+NET_CACHE="${NET_CACHE:-/tmp/snobol4x_net_cache}"
+
+# Validate toolchain
+if [[ ! -x "$SNO2C" ]]; then
+    echo "SKIP: sno2c not found at $SNO2C" >&2; exit 2
+fi
+if ! command -v ilasm >/dev/null 2>&1; then
+    echo "SKIP: ilasm not found" >&2; exit 2
+fi
+if ! command -v mono >/dev/null 2>&1; then
+    echo "SKIP: mono not found" >&2; exit 2
+fi
+
+mkdir -p "$NET_CACHE"
+
+# Derive a stable cache key from the canonical path
+base="$(basename "$SNO_FILE" .sno)"
+dir_hash="$(echo "$SNO_FILE" | md5sum | cut -c1-8)"
+key="${base}_${dir_hash}"
+il="$NET_CACHE/${key}.il"
+exe="$NET_CACHE/${key}.exe"
+stamp="$NET_CACHE/${key}.stamp"
+
+# Emit .il (fast — ~1ms)
+"$SNO2C" -net "$SNO_FILE" > "$il" 2>/dev/null
+
+# Assemble .exe only if .il changed (slow — ~350ms)
+il_md5="$(md5sum "$il" | cut -d' ' -f1)"
+cached_md5="$(cat "$stamp" 2>/dev/null || echo '')"
+
+if [[ "$il_md5" != "$cached_md5" ]] || [[ ! -f "$exe" ]]; then
+    ilasm "$il" /output:"$exe" >/dev/null 2>&1
+    echo "$il_md5" > "$stamp"
+fi
+
+# Run — stdin forwarded, stdout is program output
+exec mono "$exe"
