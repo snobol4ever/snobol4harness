@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# snobol4harness/adapters/tiny/run.sh
+# harness/adapters/tiny/run.sh
 # Run a .sno file through TINY (one4all) engine and emit program stdout only.
 # Usage: run.sh <file.sno> [< input]
 # Calling convention: stdin → program stdin, stdout → program output.
@@ -21,7 +21,7 @@ trap 'rm -rf "$TMPDIR_RUN"' EXIT
 CFILE="$TMPDIR_RUN/prog.c"
 BINARY="$TMPDIR_RUN/prog"
 
-INC="$TINY_REPO/snobol4corpus/programs/inc"
+INC="$TINY_REPO/corpus/programs/inc"
 "$TINY_BIN" -I"$INC" "$SNO_FILE" > "$CFILE" 2>/dev/null
 gcc -O2 -o "$BINARY" "$CFILE" 2>/dev/null
 exec "$BINARY"

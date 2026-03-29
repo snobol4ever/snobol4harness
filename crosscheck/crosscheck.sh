@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# crosscheck.sh — run snobol4corpus crosscheck against one or more engines
+# crosscheck.sh — run corpus crosscheck against one or more engines
 #
 # Usage: crosscheck.sh [--engine ENGINE[,ENGINE...]] [--filter PATTERN] [--corpus DIR]
 #
@@ -13,7 +13,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HARNESS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CORPUS="${CORPUS:-$HOME/snobol4corpus/crosscheck}"
+CORPUS="${CORPUS:-$HOME/corpus/crosscheck}"
 FILTER=""
 ENGINES=""
 

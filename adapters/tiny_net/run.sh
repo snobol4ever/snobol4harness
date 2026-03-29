@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# snobol4harness/adapters/tiny_net/run.sh
+# harness/adapters/tiny_net/run.sh
 # Run a .sno file through TINY NET (one4all -net) engine and emit stdout only.
 #
 # Usage: run.sh <file.sno> [< input]

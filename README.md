@@ -1,4 +1,4 @@
-# snobol4harness
+# harness
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -21,7 +21,7 @@ Serves three compiler/runtime repos:
 | Worm generator bridge — feed generated programs to all three engines | Planned |
 | Three-oracle triangulation (SPITBOL + CSNOBOL4 → ground truth) | Planned |
 | `diff_monitor.py` — Sprint 20 double-trace diff tool | Planned |
-| Corpus test runner — all snobol4corpus programs × all engines | Planned |
+| Corpus test runner — all corpus programs × all engines | Planned |
 | Coverage grid — feature × engine pass/fail matrix | Planned |
 
 ## Design Principles
@@ -29,7 +29,7 @@ Serves three compiler/runtime repos:
 - **Language-agnostic interface.** Each engine exposes `run(program, input) → output`.
   The harness does not care whether the engine is C#, Clojure, or C.
 - **Corpus-driven.** Test programs live in
-  [snobol4corpus](https://github.com/snobol4ever/snobol4corpus).
+  [corpus](https://github.com/snobol4ever/corpus).
   No test programs live here.
 - **Oracle-first.** CSNOBOL4 and SPITBOL are always ground truth.
   The harness builds them, runs them, and compares our engines against them.
@@ -54,11 +54,11 @@ Serves three compiler/runtime repos:
 
 ```bash
 # Run DOTNET against full corpus crosscheck
-CORPUS=$HOME/snobol4corpus/crosscheck \
+CORPUS=$HOME/corpus/crosscheck \
   bash crosscheck/crosscheck.sh --engine dotnet
 
 # Run DOTNET only (direct, faster)
-CORPUS=$HOME/snobol4corpus/crosscheck \
+CORPUS=$HOME/corpus/crosscheck \
   bash adapters/dotnet/run_crosscheck_dotnet.sh
 
 # Run all available engines

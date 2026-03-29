@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_crosscheck_dotnet.sh — run snobol4corpus crosscheck rungs against DOTNET
+# run_crosscheck_dotnet.sh — run corpus crosscheck rungs against DOTNET
 #
 # Usage: run_crosscheck_dotnet.sh [--filter PATTERN] [--corpus DIR] [--dotnet-repo DIR]
 #
@@ -12,7 +12,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTNET_REPO="${DOTNET_REPO:-$HOME/snobol4dotnet}"
-CORPUS="${CORPUS:-$HOME/snobol4corpus/crosscheck}"
+CORPUS="${CORPUS:-$HOME/corpus/crosscheck}"
 FILTER="${FILTER:-}"
 DOTNET_ROOT="${DOTNET_ROOT:-$HOME/.dotnet}"
 export DOTNET_ROOT

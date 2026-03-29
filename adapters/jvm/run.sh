@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# snobol4harness/adapters/jvm/run.sh
+# harness/adapters/jvm/run.sh
 # Run a .sno file through JVM (snobol4jvm) engine and emit program stdout only.
 # Usage: run.sh <file.sno> [< input]
 # Calling convention: stdin → program stdin, stdout → program output.

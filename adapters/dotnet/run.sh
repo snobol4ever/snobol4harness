@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# snobol4harness/adapters/dotnet/run.sh
+# harness/adapters/dotnet/run.sh
 # Run a .sno file through DOTNET engine and emit program stdout only.
 # Usage: run.sh <file.sno> [< input]
 # Calling convention: stdin → program stdin, stdout → program output (no banner).

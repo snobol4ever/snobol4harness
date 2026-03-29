@@ -1,7 +1,7 @@
-# snobol4harness Layout
+# harness Layout
 
 ```
-snobol4harness/
+harness/
 │
 ├── probe/                      # Probe testing — &STLIMIT + &DUMP frame-by-frame replay
 │   ├── probe.py                # Shell tool: run any .sno N times at &STLIMIT=1..N

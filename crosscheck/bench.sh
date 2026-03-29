@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bench.sh — run snobol4corpus benchmarks against one or more engines
+# bench.sh — run corpus benchmarks against one or more engines
 #
 # Usage: bench.sh [--engine ENGINE[,ENGINE...]] [--corpus DIR] [--reps N]
 #
@@ -13,7 +13,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HARNESS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CORPUS="${CORPUS:-$HOME/snobol4corpus}"
+CORPUS="${CORPUS:-$HOME/corpus}"
 REPS="${REPS:-5}"
 ENGINES=""
 
