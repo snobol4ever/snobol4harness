@@ -67,3 +67,42 @@ bash crosscheck/crosscheck.sh
 
 Full design: see `PLAN.md §7` in
 [snobol4ever/.github](https://github.com/snobol4ever/.github).
+
+## CSNOBOL4 adapter (added session this session)
+
+The Budne CSNOBOL4 2.3.3 test suite (118 programs) is now wired into the harness.
+
+| Component | Status |
+|-----------|--------|
+| `adapters/csnobol4/run.sh` — CSNOBOL4 calling convention | ✅ |
+| `adapters/spitbol/run.sh` — SPITBOL calling convention | ✅ |
+| `adapters/csnobol4/run_crosscheck_csnobol4.sh` — Budne suite runner | ✅ |
+
+### Baselines (recorded against corpus/programs/csnobol4-suite, 116 runnable of 124)
+
+| Engine | Pass | Notes |
+|--------|------|-------|
+| SPITBOL oracle | 45/116 | Many deltas due to dialect differences (8-bit ids, OPSYN, etc.) |
+| CSNOBOL4 | 47/116 | 2 more passes than SPITBOL; engine-specific quirks differ |
+| SPITBOL — FENCE tests (058–067) | 7/10 | 3 SPITBOL bugs: 061 seal, 064 capture, 065 decimal |
+| CSNOBOL4 — FENCE tests (058–067) | 1/10 | 058 keyword passes; 059–067 need GOAL-CSNOBOL4-FENCE |
+
+### Quick start
+
+```bash
+# Run csnobol4-suite against CSNOBOL4
+bash adapters/csnobol4/run_crosscheck_csnobol4.sh --engine csnobol4
+
+# Run csnobol4-suite against SPITBOL oracle
+bash adapters/csnobol4/run_crosscheck_csnobol4.sh --engine spitbol
+
+# Run FENCE tests via crosscheck
+CORPUS=$HOME/corpus/crosscheck \
+  bash crosscheck/crosscheck.sh --engine csnobol4 --filter pat_fence
+```
+
+### Excluded from suite (8 total)
+
+`bench.sno` (no .ref), `breakline.sno` (large-record I/O hangs SPITBOL),
+`genc.sno` (file output), `k.sno` (large-record I/O hangs SPITBOL),
+`line2.sno` (no .ref), `ndbm.sno` (DBM library), `sleep.sno` / `time.sno` (time-dependent).

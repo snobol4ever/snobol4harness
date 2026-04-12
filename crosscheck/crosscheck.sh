@@ -3,7 +3,7 @@
 #
 # Usage: crosscheck.sh [--engine ENGINE[,ENGINE...]] [--filter PATTERN] [--corpus DIR]
 #
-# Engines: dotnet  (default: all available)
+# Engines: csnobol4, dotnet, spitbol  (default: all available)
 # Each engine adapter lives in adapters/<engine>/run.sh
 # Calling convention: run.sh <file.sno> [< input]  →  stdout = program output
 #
@@ -81,7 +81,7 @@ run_engine() {
                 pass=$((pass+1))
             else
                 echo -e "${RED}FAIL${RESET} $name"
-                diff <(echo "$exp") <(echo "$got") | head -6 | sed 's/^/      /'
+                diff <(echo "$exp") <(echo "$got") | head -6 | sed 's/^/      /' || true
                 fail=$((fail+1))
             fi
         done
