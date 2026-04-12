@@ -13,7 +13,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HARNESS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CORPUS="${CORPUS:-$HOME/corpus/crosscheck}"
+CORPUS="${CORPUS:-$HOME/corpus}"
 FILTER=""
 ENGINES=""
 
@@ -37,9 +37,9 @@ GREEN='\033[0;32m'; RED='\033[0;31m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; RE
 
 TOTAL_PASS=0; TOTAL_FAIL=0
 
-DIRS=(hello output assign concat arith_new control_new patterns capture strings functions data keywords
-      rung2 rung3 rung4 rung8 rung9 rung10 rung11
-      /home/claude/corpus/programs/csnobol4-suite)
+DIRS=(crosscheck/hello crosscheck/output crosscheck/assign crosscheck/concat crosscheck/arith_new crosscheck/control_new crosscheck/patterns crosscheck/capture crosscheck/strings crosscheck/functions crosscheck/data crosscheck/keywords
+      crosscheck/rung2 crosscheck/rung3 crosscheck/rung4 crosscheck/rung8 crosscheck/rung9 crosscheck/rung10 crosscheck/rung11
+      programs/csnobol4-suite)
 
 run_engine() {
     local engine="$1"
@@ -54,7 +54,7 @@ run_engine() {
     local pass=0 fail=0 skip=0
 
     for dir in "${DIRS[@]}"; do
-        [[ "$dir" = /* ]] && local full="$dir" || local full="$CORPUS/$dir"
+        local full="$CORPUS/$dir"
         [[ -d "$full" ]] || continue
         echo "── $dir ──"
         for sno in "$full"/*.sno; do

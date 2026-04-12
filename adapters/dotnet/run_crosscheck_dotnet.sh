@@ -12,7 +12,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTNET_REPO="${DOTNET_REPO:-$HOME/snobol4dotnet}"
-CORPUS="${CORPUS:-$HOME/corpus/crosscheck}"
+CORPUS="${CORPUS:-$HOME/corpus}"
 FILTER="${FILTER:-}"
 DOTNET_ROOT="${DOTNET_ROOT:-$HOME/.dotnet}"
 export DOTNET_ROOT
@@ -68,12 +68,12 @@ echo "dll:    $SNO4_DLL"
 echo "corpus: $CORPUS"
 echo ""
 
-DIRS=(hello output assign concat arith_new control_new patterns capture strings functions data keywords
-      rung2 rung3 rung4 rung8 rung9 rung10 rung11
-      /home/claude/corpus/programs/csnobol4-suite)
+DIRS=(crosscheck/hello crosscheck/output crosscheck/assign crosscheck/concat crosscheck/arith_new crosscheck/control_new crosscheck/patterns crosscheck/capture crosscheck/strings crosscheck/functions crosscheck/data crosscheck/keywords
+      crosscheck/rung2 crosscheck/rung3 crosscheck/rung4 crosscheck/rung8 crosscheck/rung9 crosscheck/rung10 crosscheck/rung11
+      programs/csnobol4-suite)
 
 for dir in "${DIRS[@]}"; do
-    [[ "$dir" = /* ]] && full="$dir" || full="$CORPUS/$dir"
+    full="$CORPUS/$dir"
     [[ -d "$full" ]] || continue
     echo "── $dir ──"
     for sno in "$full"/*.sno; do
