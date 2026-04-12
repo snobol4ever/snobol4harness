@@ -69,7 +69,8 @@ echo "corpus: $CORPUS"
 echo ""
 
 DIRS=(hello output assign concat arith_new control_new patterns capture strings functions data keywords
-      rung2 rung3 rung4 rung8 rung9 rung10 rung11)
+      rung2 rung3 rung4 rung8 rung9 rung10 rung11
+      csnobol4_suite)
 
 for dir in "${DIRS[@]}"; do
     full="$CORPUS/$dir"

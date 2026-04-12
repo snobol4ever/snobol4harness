@@ -38,7 +38,8 @@ GREEN='\033[0;32m'; RED='\033[0;31m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; RE
 TOTAL_PASS=0; TOTAL_FAIL=0
 
 DIRS=(hello output assign concat arith_new control_new patterns capture strings functions data keywords
-      rung2 rung3 rung4 rung8 rung9 rung10 rung11)
+      rung2 rung3 rung4 rung8 rung9 rung10 rung11
+      csnobol4_suite)
 
 run_engine() {
     local engine="$1"
