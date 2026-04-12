@@ -70,10 +70,10 @@ echo ""
 
 DIRS=(hello output assign concat arith_new control_new patterns capture strings functions data keywords
       rung2 rung3 rung4 rung8 rung9 rung10 rung11
-      csnobol4_suite)
+      /home/claude/corpus/programs/csnobol4-suite)
 
 for dir in "${DIRS[@]}"; do
-    full="$CORPUS/$dir"
+    [[ "$dir" = /* ]] && full="$dir" || full="$CORPUS/$dir"
     [[ -d "$full" ]] || continue
     echo "── $dir ──"
     for sno in "$full"/*.sno; do

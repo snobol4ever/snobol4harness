@@ -39,7 +39,7 @@ TOTAL_PASS=0; TOTAL_FAIL=0
 
 DIRS=(hello output assign concat arith_new control_new patterns capture strings functions data keywords
       rung2 rung3 rung4 rung8 rung9 rung10 rung11
-      csnobol4_suite)
+      /home/claude/corpus/programs/csnobol4-suite)
 
 run_engine() {
     local engine="$1"
@@ -54,7 +54,7 @@ run_engine() {
     local pass=0 fail=0 skip=0
 
     for dir in "${DIRS[@]}"; do
-        local full="$CORPUS/$dir"
+        [[ "$dir" = /* ]] && local full="$dir" || local full="$CORPUS/$dir"
         [[ -d "$full" ]] || continue
         echo "── $dir ──"
         for sno in "$full"/*.sno; do
